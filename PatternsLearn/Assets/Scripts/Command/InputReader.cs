@@ -8,21 +8,21 @@ public class InputReader : MonoBehaviour
     {
         float z = 0;
 
-        if(Input.GetKeyDown(KeyCode.UpArrow))
+        if(Input.GetKey(KeyCode.UpArrow))
         {
             z = 1;
         }
-        else if(Input.GetKeyDown(KeyCode.DownArrow))
+        else if(Input.GetKey(KeyCode.DownArrow))
         {
             z = -1;
         }
 
         float x = 0;
-        if(Input.GetKeyDown(KeyCode.RightArrow))
+        if(Input.GetKey(KeyCode.RightArrow))
         {
             x = 1;
         }
-        else if(Input.GetKeyDown(KeyCode.LeftArrow))
+        else if(Input.GetKey(KeyCode.LeftArrow))
         {
             x = -1;
         }

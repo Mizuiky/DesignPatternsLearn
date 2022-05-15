@@ -11,7 +11,9 @@ public class AttackCommand : ICommand
         _gameActor = gameActor;
     }
 
-   public virtual void Execute()
+    public bool IsDone => throw new System.NotImplementedException();
+
+    public virtual void Execute()
    {
        
    }

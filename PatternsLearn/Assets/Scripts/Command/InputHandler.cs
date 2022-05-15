@@ -30,7 +30,6 @@ public class InputHandler : MonoBehaviour
 
         if(_inputReader.ReadUndo())
         {
-            Debug.Log("READ UNDO");
             _commandHandler.Undo();
         }
     }

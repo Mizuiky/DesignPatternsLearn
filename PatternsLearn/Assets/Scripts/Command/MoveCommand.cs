@@ -12,7 +12,7 @@ public class MoveCommand : ICommand
     public MoveCommand(Vector3 direction, IGameEntity gameEntity)
     {
         _gameEntity = gameEntity;
-        _direction = direction * 1f;
+        _direction = direction * 0.5f;
         
         _originalPosition = gameEntity.EntityPosition.position;
     }
@@ -27,11 +27,6 @@ public class MoveCommand : ICommand
 
     public void Undo()
     {
-        var startPosition = _gameEntity.EntityPosition.position;
-
-        Debug.Log("startPosition" + startPosition);
-        Debug.Log("Original position " + _originalPosition);
-
-        _gameEntity.MoveFromTo(startPosition, _originalPosition);
+        _gameEntity.MoveRigidbory(_originalPosition);
     }
 }

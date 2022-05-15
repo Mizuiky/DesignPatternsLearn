@@ -6,11 +6,7 @@ public interface IGameEntity
 {
     public Transform EntityPosition { get; }
 
-    public Rigidbody Bory { get; }
-
     public void MoveRigidbory(Vector3 positionToMove);
 
-    public void MoveFromTo(Vector3 starPosition, Vector3 endPosition);
-
-    //here we put any kind of actions that the player or enemies will do in the game
+    //here we put any kind of elements that Players and enemies have in comum into the game
 }
