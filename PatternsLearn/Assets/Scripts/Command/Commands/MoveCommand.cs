@@ -2,30 +2,38 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MoveCommand : ICommand
+public class MoveCommand : CommandBase
 {
     private Vector3 _direction;
     private Vector3 _originalPosition;
 
-    private IGameEntity _gameEntity;
-
-    public MoveCommand(Vector3 direction, IGameEntity gameEntity)
+    public Vector3 Direction
     {
-        _gameEntity = gameEntity;
-        _direction = direction * 0.5f;
-        
-        _originalPosition = gameEntity.EntityPosition.position;
+        get
+        {
+            return _direction;
+        }
     }
 
-    public void Execute()
+    public MoveCommand(Vector3 direction)
     {
+        _direction = direction * 0.5f;
+        base._name = "Move";
+    }
+
+    public override void Execute()
+    {
+        Debug.Log("Move Executed");
+
+        _originalPosition = _gameEntity.EntityPosition.position;
+
         var moveTo = _originalPosition;
         moveTo += _direction;
 
         _gameEntity.MoveRigidbory(moveTo);
     }
 
-    public void Undo()
+    public override void Undo()
     {
         _gameEntity.MoveRigidbory(_originalPosition);
     }

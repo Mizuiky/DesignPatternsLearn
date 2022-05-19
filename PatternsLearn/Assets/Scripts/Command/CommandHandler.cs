@@ -19,6 +19,7 @@ public class CommandHandler
         //instead of using coroutine that is from monobehavior trying to create another class and link it with events just to pass all the command data to there, it's simple to use the
         //Task.Delay that whe can use in normal classes to create a delay between the comands.
 
+        Debug.Log("COMANDS TO UNDO: " + _commands.Count);
         while (_commands.Count > 0)
         {
             _commands.Pop().Undo();
