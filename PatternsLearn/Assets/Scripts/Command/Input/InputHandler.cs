@@ -12,13 +12,11 @@ public class InputHandler : MonoBehaviour
 
     private CommandHandler _commandHandler;
 
-    private CommandBase _currentCommand;
-
     #endregion
 
     private void Awake()
     {
-        _currentCommand = new CommandBase();
+        
     }
 
     void Start()
@@ -26,31 +24,27 @@ public class InputHandler : MonoBehaviour
         _inputReader = FindObjectOfType<InputReader>();
         _player = FindObjectOfType<Player>();
 
-        _commandHandler = new CommandHandler();     
+        _commandHandler = new CommandHandler();
+        _commandHandler.InitCommandHandler();
     }
 
     void Update()
     {
         if (Time.timeScale > 0)
         {
-            _currentCommand = (CommandBase)_inputReader.ReadInput();
-            
+            var command = _inputReader.ReadCommand();
+
+            if (command != null)
+            {
+                command.SetEntity(_player);
+                _commandHandler.Execute(command);
+            }
+
             if (_inputReader.ReadUndo())
             {
                 Debug.Log("READUNDO");
-                _commandHandler.Undo();
-            }        
-        }
-    }
-
-    void FixedUpdate()
-    {
-        //isso aqui precisa melhorar
-        if(!_currentCommand.Name.Contains("Base"))
-        {
-            Debug.Log("ACTIVATE NEW COMMAND");
-            _currentCommand.SetEntity(_player);
-            _commandHandler.Execute(_currentCommand);
+                _commandHandler.UndoMovements();
+            }
         }
     }
 }

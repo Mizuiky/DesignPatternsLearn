@@ -4,34 +4,46 @@ using UnityEngine;
 
 public class CommandBase : ICommand
 {
-    protected IGameEntity _gameEntity;
+    private string _name;
+    private IGameEntity _entity;
 
-    protected string _name;
+
+    public IGameEntity Entity
+    {
+        get
+        {
+            return _entity;
+        }
+        set
+        {
+            _entity = value;
+        }
+    }
+
     public string Name
     {
         get
         {
             return _name;
         }
-    }
-
-    public CommandBase()
-    {
-        _name = "Base";
+        set
+        {
+            _name = value;
+        }
     }
 
     public virtual void Execute()
     {
-        
+        Debug.Log("Execute command");
     }
 
     public virtual void SetEntity(IGameEntity gameEntity)
     {
-        _gameEntity = gameEntity;
+        _entity = gameEntity;
     }
 
     public virtual void Undo()
     {
-        
+        Debug.Log("Undo command");
     }
 }

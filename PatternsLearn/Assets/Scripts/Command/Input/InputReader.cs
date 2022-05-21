@@ -1,17 +1,15 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class InputReader : MonoBehaviour
 {
-    private Dictionary<KeyCode, ICommand> _keyCommands;
+    private Dictionary<KeyCode, IInputMap> _keyCommands;
 
     private void Awake()
     {
         InputScreen.UpdateInputMap += AssignInputToCommand;
-    }
 
-    private void Start()
-    {
         Init();
     }
 
@@ -24,29 +22,28 @@ public class InputReader : MonoBehaviour
     {
         #region Initialing Dictionary
 
-        _keyCommands = new Dictionary<KeyCode, ICommand>();
+        _keyCommands = new Dictionary<KeyCode, IInputMap> ();
 
-        _keyCommands.Add(KeyCode.A, new JumpCommand());
-        _keyCommands.Add(KeyCode.S, new AttackCommand());
+        _keyCommands.Add(KeyCode.A, new InputMap("Jump"));
+        _keyCommands.Add(KeyCode.S, new InputMap("Attack"));
 
-        _keyCommands.Add(KeyCode.RightArrow, new MoveCommand(Vector3.right));
-        _keyCommands.Add(KeyCode.LeftArrow, new MoveCommand(-Vector3.right));
-        _keyCommands.Add(KeyCode.UpArrow, new MoveCommand(Vector3.forward));
-        _keyCommands.Add(KeyCode.DownArrow, new MoveCommand(-Vector3.forward));
-
-        ReadDictionary();
+        _keyCommands.Add(KeyCode.RightArrow, new InputMapMovement("Move", 1, 0, 0));
+        _keyCommands.Add(KeyCode.LeftArrow, new InputMapMovement("Move", -1, 0 , 0));
+        _keyCommands.Add(KeyCode.UpArrow, new InputMapMovement("Move", 0, 0, 1));
+        _keyCommands.Add(KeyCode.DownArrow, new InputMapMovement("Move", 0, 0, -1));
 
         #endregion
+
+        PrintDictionary();
     }
 
-    public void ReadDictionary()
+    public void PrintDictionary()
     {
-        foreach (KeyValuePair<KeyCode, ICommand> command in _keyCommands)
+        foreach (KeyValuePair<KeyCode, IInputMap> command in _keyCommands)
         {
             Debug.Log("Key: " + command.Key.ToString() + "Name: " + command.Value.Name);
         }
     }
-
 
     private void OnEnable()
     {
@@ -58,24 +55,22 @@ public class InputReader : MonoBehaviour
         InputScreen.UpdateInputMap -= AssignInputToCommand;
     }
 
-    public ICommand ReadInput()
-    {     
-        if (Input.anyKey)
+    public ICommand ReadCommand()
+    {
+        if (Input.anyKeyDown)
         {
-            Debug.Log("Any Key Down");
-            ICommand result = GetInput();
+            var key = GetInput();
 
-            if (result != null)
+            if (key != KeyCode.None)
             {
-                Debug.Log("READ INPUT != NULL");
-                return result;
-            }         
+                return GetCommand(key);
+            }
         }
 
         return null;
     }
 
-    public ICommand GetInput()
+    public KeyCode GetInput()
     {
         var keys = System.Enum.GetValues(typeof(KeyCode));
 
@@ -83,91 +78,141 @@ public class InputReader : MonoBehaviour
         {
             if (Input.GetKey(key))
             {
-                return CheckInput(key);
+                return key;
             }
         }
 
-        return null;
+        return KeyCode.None;
     }
 
-    private ICommand CheckInput(KeyCode key)
+    private ICommand GetCommand(KeyCode key)
     {
-        Debug.Log("CHECK KEY COMMAND");
         if (_keyCommands.ContainsKey(key))
         {
-            Debug.Log("HAVE KEY");
-            return _keyCommands[key];
+            return _keyCommands[key].CreateNewCommand();
         }
-
-        return _keyCommands[key];
+        return null;
     }
 
     public bool ReadUndo()
     {
-        Debug.Log("ESPACE");
         return Input.GetKeyDown(KeyCode.Space);
     }
 
     public void AssignInputToCommand(string commandName, KeyCode key)
     {
-        Debug.Log("INPUT MESSAGE RECEIVED");
+        var commandToChange = ValidateNewKeyCommand(commandName, key);
 
-        foreach (KeyValuePair<KeyCode, ICommand> command in _keyCommands)
+        if(commandToChange != KeyCode.None)
         {
-            var updateKey = command.Key.ToString().Contains(key.ToString()) && command.Value.Name.Contains(commandName);
-
-            if (!updateKey)
-            {
-                Debug.Log("UpdateKey");
-                var value = command.Value;
-
-                _keyCommands.Remove(key);
-
-                _keyCommands.Add(key, value);
-            }
-
-            Debug.Log("Key: {0}, Value: {1}" + command.Key + command.Value);
+            Debug.Log("UpdateKey");
+            UpdateKeyCommand(_keyCommands[key], key);
         }
+        
+        foreach (KeyValuePair<KeyCode, IInputMap> command in _keyCommands)
+        {
+            Debug.Log("Key:" + command.Key + "Command Name:" + command.Value.Name);
+        }
+    }
+
+    private void UpdateKeyCommand(IInputMap command, KeyCode key)
+    {
+        Debug.Log(command.Name);
+        Debug.Log(key);
+
+        _keyCommands.Remove(key);
+
+        Debug.Log("UPDATE COMMANDS");
+        foreach (KeyValuePair<KeyCode, IInputMap> commands in _keyCommands)
+        {
+            Debug.Log("Key:" + commands.Key + "Command Name:" + commands.Value.Name);
+        }       
+
+        _keyCommands.Add(key, new InputMap(command.Name));
+    }
+
+    private KeyCode ValidateNewKeyCommand(string commandName, KeyCode key)
+    {
+        if(_keyCommands.ContainsKey(key))
+        {
+            var result = _keyCommands[key].Name;
+
+            if (_keyCommands[key].Name.Contains(commandName))
+            return KeyCode.None;
+        }
+
+        Debug.Log("dont contain key");
+        return key;
     }
 }
 
-public class InputResult: IInputResult
+#region InputMap
+
+public class InputMap : IInputMap
+{
+    protected string _name;
+    protected CommandBase _command;
+
+    public string Name
+    {
+        get => _name;
+        set => _name = value;
+    }
+
+    public CommandBase Command
+    {
+        get => _command;
+        set => _command = value;
+    }
+
+    public InputMap(string name)
+    {
+        _name = name;   
+    }
+
+    public virtual ICommand CreateNewCommand()
+    {
+        switch(_name)
+        {
+            case "Jump":               
+                return new JumpCommand();
+            case "Attack":
+                return new AttackCommand();
+        }
+
+        return null;
+    }
+}
+
+public class InputMapMovement : InputMap
 {
     private Vector3 _direction;
-    private ICommand _command;
-
-    public InputResult(Vector3 direction, ICommand command)
-    {
-        _direction = direction;
-        _command = command;
-
-        //_command.Init();
-    }
-
     public Vector3 Direction
     {
-        get
-        {
-            return _direction;
-        }
-        set
-        {
-            _direction = value;
-        }
+        get => _direction;
+        set => _direction = value;
     }
 
-    public ICommand Command
+    //needed to refer base constructor in this children class constructor using :base(name)
+    public InputMapMovement(string name, float x, float y, float z) : base(name)
     {
-        get
-        {
-            return _command;
-        }
-    }  
+        _name = name;
+        _direction = new Vector3(x, y, z);
+    }
+
+    public override ICommand CreateNewCommand()
+    {    
+        return new MoveCommand(_direction);
+    }
 }
 
-public interface IInputResult
+public interface IInputMap
 {
-    public Vector3 Direction { get; }
-    public ICommand Command { get; }
+    public string Name { get; set; }
+
+    public CommandBase Command { get; set; }
+
+    public ICommand CreateNewCommand();
 }
 
+#endregion

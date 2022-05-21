@@ -344,7 +344,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c5aea8cd82bf0e94f9dd8cd0e4999035, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _anyButtonText: {fileID: 2653406769063944270}
+  _pressAnyButtonText: {fileID: 2653406769063944270}
   _jumpButton: {fileID: 2653406768040194311}
   _attackButton: {fileID: 2653406769085389689}
 --- !u!1 &2653406767902183781
