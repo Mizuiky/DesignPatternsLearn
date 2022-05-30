@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using InputCollection;
 
 public class InputReader : MonoBehaviour
 {
@@ -8,13 +9,13 @@ public class InputReader : MonoBehaviour
 
     private void Awake()
     {
-        InputScreen.UpdateInputMap += AssignInputToCommand;
-
         Init();
     }
 
     private void Init()
     {
+        InputController.UpdateInputMap += AssignInputToCommand;
+
         InitializeDefaultKeyCommands();
     }
 
@@ -24,13 +25,13 @@ public class InputReader : MonoBehaviour
 
         _keyCommands = new Dictionary<KeyCode, IInputMap> ();
 
-        _keyCommands.Add(KeyCode.A, new InputMap("Jump"));
-        _keyCommands.Add(KeyCode.S, new InputMap("Attack"));
+        _keyCommands.Add(KeyCode.Z, new InputMap("Jump"));
+        _keyCommands.Add(KeyCode.X, new InputMap("Attack"));
 
-        _keyCommands.Add(KeyCode.RightArrow, new InputMapMovement("Move", 1, 0, 0));
-        _keyCommands.Add(KeyCode.LeftArrow, new InputMapMovement("Move", -1, 0 , 0));
-        _keyCommands.Add(KeyCode.UpArrow, new InputMapMovement("Move", 0, 0, 1));
-        _keyCommands.Add(KeyCode.DownArrow, new InputMapMovement("Move", 0, 0, -1));
+        _keyCommands.Add(KeyCode.D, new InputMapMovement("Right", 1, 0, 0));
+        _keyCommands.Add(KeyCode.A, new InputMapMovement("Left", -1, 0 , 0));
+        _keyCommands.Add(KeyCode.W, new InputMapMovement("Up", 0, 0, 1));
+        _keyCommands.Add(KeyCode.S, new InputMapMovement("Down", 0, 0, -1));
 
         #endregion
 
@@ -41,7 +42,7 @@ public class InputReader : MonoBehaviour
     {
         foreach (KeyValuePair<KeyCode, IInputMap> command in _keyCommands)
         {
-            Debug.Log("Key: " + command.Key.ToString() + "Name: " + command.Value.Name);
+            Debug.Log("Key: " + command.Key.ToString() + " " + "Name: " + command.Value.Name);
         }
     }
 
@@ -52,12 +53,12 @@ public class InputReader : MonoBehaviour
 
     private void OnDisable()
     {
-        InputScreen.UpdateInputMap -= AssignInputToCommand;
+        InputController.UpdateInputMap -= AssignInputToCommand;
     }
 
     public ICommand ReadCommand()
     {
-        if (Input.anyKeyDown)
+        if (Input.anyKey)
         {
             var key = GetInput();
 
@@ -101,118 +102,50 @@ public class InputReader : MonoBehaviour
 
     public void AssignInputToCommand(string commandName, KeyCode key)
     {
-        var commandToChange = ValidateNewKeyCommand(commandName, key);
-
-        if(commandToChange != KeyCode.None)
+        if(ShouldAddNewInput(commandName, key))
         {
             Debug.Log("UpdateKey");
-            UpdateKeyCommand(_keyCommands[key], key);
+            UpdateInput(commandName, key);
         }
-        
-        foreach (KeyValuePair<KeyCode, IInputMap> command in _keyCommands)
-        {
-            Debug.Log("Key:" + command.Key + "Command Name:" + command.Value.Name);
-        }
+
+        PrintDictionary();
     }
 
-    private void UpdateKeyCommand(IInputMap command, KeyCode key)
+    private bool ShouldAddNewInput(string pressedCommandName, KeyCode key)
     {
-        Debug.Log(command.Name);
-        Debug.Log(key);
-
-        _keyCommands.Remove(key);
-
-        Debug.Log("UPDATE COMMANDS");
-        foreach (KeyValuePair<KeyCode, IInputMap> commands in _keyCommands)
+        if (_keyCommands.ContainsKey(key))
         {
-            Debug.Log("Key:" + commands.Key + "Command Name:" + commands.Value.Name);
-        }       
-
-        _keyCommands.Add(key, new InputMap(command.Name));
-    }
-
-    private KeyCode ValidateNewKeyCommand(string commandName, KeyCode key)
-    {
-        if(_keyCommands.ContainsKey(key))
-        {
-            var result = _keyCommands[key].Name;
-
-            if (_keyCommands[key].Name.Contains(commandName))
-            return KeyCode.None;
+            var currentCommandName = _keyCommands[key].Name;
+            if (currentCommandName.Contains(pressedCommandName))
+                return false;
+            else
+                return true;
         }
 
         Debug.Log("dont contain key");
-        return key;
-    }
-}
-
-#region InputMap
-
-public class InputMap : IInputMap
-{
-    protected string _name;
-    protected CommandBase _command;
-
-    public string Name
-    {
-        get => _name;
-        set => _name = value;
+        return true;
     }
 
-    public CommandBase Command
+    private void UpdateInput(string commandName, KeyCode newKey)
     {
-        get => _command;
-        set => _command = value;
-    }
+        var currentInputMap = GetCurrentInput(commandName);
 
-    public InputMap(string name)
-    {
-        _name = name;   
-    }
-
-    public virtual ICommand CreateNewCommand()
-    {
-        switch(_name)
+        if(currentInputMap != null)
         {
-            case "Jump":               
-                return new JumpCommand();
-            case "Attack":
-                return new AttackCommand();
+            _keyCommands.Remove(currentInputMap.Key);
+
+            _keyCommands.Add(newKey, currentInputMap.Input);
+        }  
+    }
+
+    private IInputPackage GetCurrentInput(string commandName)
+    {
+        foreach (KeyValuePair<KeyCode, IInputMap> input in _keyCommands)
+        {
+            if (input.Value.Name.Contains(commandName))
+                return new InputPackage(input.Key, input.Value);
         }
 
         return null;
     }
 }
-
-public class InputMapMovement : InputMap
-{
-    private Vector3 _direction;
-    public Vector3 Direction
-    {
-        get => _direction;
-        set => _direction = value;
-    }
-
-    //needed to refer base constructor in this children class constructor using :base(name)
-    public InputMapMovement(string name, float x, float y, float z) : base(name)
-    {
-        _name = name;
-        _direction = new Vector3(x, y, z);
-    }
-
-    public override ICommand CreateNewCommand()
-    {    
-        return new MoveCommand(_direction);
-    }
-}
-
-public interface IInputMap
-{
-    public string Name { get; set; }
-
-    public CommandBase Command { get; set; }
-
-    public ICommand CreateNewCommand();
-}
-
-#endregion

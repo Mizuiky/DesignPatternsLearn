@@ -7,7 +7,7 @@ using UnityEngine.UI;
 public class PauseScreen : MonoBehaviour
 {
     [SerializeField]
-    private InputScreen _inputScreen;
+    private InputController _inputController;
    
     private void Awake()
     {
@@ -27,7 +27,7 @@ public class PauseScreen : MonoBehaviour
 
     public void EnableInputScreen(bool open)
     {
-        _inputScreen.Open(open);
+        _inputController.Open(open);
     }
 
 }

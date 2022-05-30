@@ -5,7 +5,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class InputScreen : MonoBehaviour
+public class InputController : MonoBehaviour
 {
     #region Private Fields
 

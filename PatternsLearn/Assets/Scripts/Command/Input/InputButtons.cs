@@ -16,11 +16,25 @@ public class InputButtons : MonoBehaviour
 
     #region Buttons
 
-    [SerializeField]
-    private Button _jumpButton;
+    [Header("Inputs")]
 
     [SerializeField]
-    private Button _attackButton;
+    private Button _jumpBtn;
+
+    [SerializeField]
+    private Button _attackBtn;
+
+    [SerializeField]
+    private Button _rightBtn;
+
+    [SerializeField]
+    private Button _leftBtn;
+
+    [SerializeField]
+    private Button _upBtn;
+
+    [SerializeField]
+    private Button _downBtn;
 
     private bool _isAnyButtonBeingChanged;
 
@@ -46,11 +60,16 @@ public class InputButtons : MonoBehaviour
 
         _inputButtons = new Dictionary<string, Button>()
         {
-            {"Jump" , _jumpButton },
-            { "Attack" , _attackButton },
+            { "Jump" , _jumpBtn },
+            { "Attack" , _attackBtn },
+            { "Right" , _rightBtn },
+            { "Left" , _leftBtn },
+            { "Up" , _upBtn },
+            { "Down" , _downBtn }
+
         };
 
-        string [] keys = { "A", "S" };
+        string [] keys = { "Z", "X", "D", "A", "W", "S" };
 
         var count = 0;
 

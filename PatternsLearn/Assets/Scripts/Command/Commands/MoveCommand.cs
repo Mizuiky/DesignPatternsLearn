@@ -9,22 +9,14 @@ public class MoveCommand : CommandBase, IMove
 
     public Vector3 OriginalPosition
     {
-        get
-        {
-            return _originalPosition;
-        }
-        set
-        {
-            _originalPosition = value;
-        }
+        get => _originalPosition;    
+        set => _originalPosition = value;   
     }
 
     public Vector3 Direction
     {
-        get
-        {
-            return _direction;
-        }
+        get => _direction;
+        set => _direction = value;
     }
 
     public override void SetEntity(IGameEntity gameEntity)

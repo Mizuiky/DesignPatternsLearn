@@ -8,23 +8,16 @@ public class WaitInput : MonoBehaviour
 
     private string[] _forbiddenKeys = { "Mouse" };
 
-    #endregion
+    private bool _enableKeyPress;
 
+    #endregion
 
     #region Properties
     public bool EnableKeyPress
     {
-        get
-        {
-            return _enableKeyPress;
-        }
-        set
-        {
-            _enableKeyPress = value;
-        }
+        get => _enableKeyPress;
+        set => _enableKeyPress = value;
     }
-
-    private bool _enableKeyPress;
 
     #endregion
 

@@ -8,10 +8,7 @@ public class Player : MonoBehaviour, IGameEntity
 
     public Transform EntityPosition
     {
-        get
-        {
-            return this.transform;
-        }
+        get => this.transform;
     }
 
     void Awake()

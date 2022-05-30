@@ -14,11 +14,6 @@ public class InputHandler : MonoBehaviour
 
     #endregion
 
-    private void Awake()
-    {
-        
-    }
-
     void Start()
     {
         _inputReader = FindObjectOfType<InputReader>();
@@ -41,10 +36,7 @@ public class InputHandler : MonoBehaviour
             }
 
             if (_inputReader.ReadUndo())
-            {
-                Debug.Log("READUNDO");
-                _commandHandler.UndoMovements();
-            }
+                 _commandHandler.UndoMovements();  
         }
     }
 }
