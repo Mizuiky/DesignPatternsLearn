@@ -119,7 +119,7 @@ public class InputReader : MonoBehaviour
             if (currentCommandName.Contains(pressedCommandName))
                 return false;
             else
-                return true;
+                return true; // S para attack e S novo para jump, existe key S porem é para attack, quero o S para o jump 
         }
 
         Debug.Log("dont contain key");
@@ -128,14 +128,33 @@ public class InputReader : MonoBehaviour
 
     private void UpdateInput(string commandName, KeyCode newKey)
     {
+        RealocateSameKeyCommand(newKey);
+
         var currentInputMap = GetCurrentInput(commandName);
 
-        if(currentInputMap != null)
+        if (currentInputMap != null)
         {
             _keyCommands.Remove(currentInputMap.Key);
 
             _keyCommands.Add(newKey, currentInputMap.Input);
-        }  
+        }
+
+        return;
+    }
+
+    private void RealocateSameKeyCommand(KeyCode key)
+    {
+        // S para attack e S novo para jump, existe key S porem é para attack, quero o S para o jump 
+
+        if (_keyCommands.ContainsKey(key))
+        {
+            var commandToRealocate = _keyCommands[key];
+
+            _keyCommands.Remove(key);
+            _keyCommands.Add(KeyCode.None, commandToRealocate);
+
+            //mandar mensagem pro setinputtext da inputscreen para mostrar none e um popup indicando que tem que adicionar um novo input parar ação x
+        }
     }
 
     private IInputPackage GetCurrentInput(string commandName)
